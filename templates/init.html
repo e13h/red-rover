@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<img src="{{ url_for('static', filename='red-rover-logo.png') }}" class="center" />
+<h1 class="subtitle">Coming Soon...</h1>
+
+<form action="{{ url_for('index') }}" method="POST">
+    <h3>Play a song</h3>
+    <p>
+        <label for="init_access_token">Init access token:</label>
+        <input type="text" name="init_access_token" />
+    </p>
+    <p>
+        <label for="playback_access_token">Playback access token:</label>
+        <input type="text" name="playback_access_token" />
+    </p>
+    <p>
+        <label for="track_id">Track ID:</label>
+        <input type="text" name="track_id" value="spotify:album:63iWSELt9V1kV6RSMxN7Ii" />
+    </p>
+    <p>
+        <input type="submit" name="submit_play_request" />
+    </p>
+</form>
+
+<code>{{ play_request }}</code>
+<br>
+
+{% if play_request %}
+<img id="play" src="{{ url_for('static', filename='play-button.png') }}" width="50" />
+<div id="log"></div>
+<script src="https://sdk.scdn.co/spotify-player.js"></script>
+<script>
+    const filename = "{{ url_for('static', filename='test.js') }}"
+    document.write("<script type='text/javascript' src='" + filename + "?v=" + Date.now() + "'><\/script>");
+</script>
+<script type="text/javascript">
+    play_request = JSON.parse('{{ play_request | tojson | safe }}');
+    spotifyInit(play_request.init_access_token)
+        .then(([player, device_id]) => {
+            let log = document.getElementById('log');
+            log.insertAdjacentHTML('beforeend', `Ready with device ID ${device_id}<br>`);
+
+            let play_button = document.getElementById('play');
+            play_button.addEventListener('click', () => {
+                playTrack(play_request.track_id, device_id, play_request.playback_access_token);
+                player.togglePlay().then(() => {
+                    console.log('toggled playback!');
+                });
+            });
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+
+</script>
+{% endif %}
+
+{% endblock %}
