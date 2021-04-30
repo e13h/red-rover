@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="subtitle">Check back soon!</h1>
+
+<form action="{{ url_for('coming_soon') }}" method="POST">
+    <h3>Access Preview</h3>
+    <p>
+        <label>Token:</label>
+        <input type="text" name="site_access_token" autocomplete="one-time-code"/>
+    </p>
+    <p>
+        <input type="submit" value="Submit token"/>
+    </p>
+</form>
+
+{% endblock %}

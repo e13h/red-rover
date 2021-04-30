@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<p>
+    <label for="track_id">Track ID:</label>
+    <input id="track_id" type="text" name="track_id" autocomplete="off" value="spotify:album:63iWSELt9V1kV6RSMxN7Ii"/>
+</p>
+
+<button id="play" disabled="true">Loading</button>
+
+<script src="https://sdk.scdn.co/spotify-player.js"></script>
+<script>
+    const filename = "{{ url_for('static', filename='spotify.js') }}"
+    document.write("<script type='text/javascript' src='" + filename + "?v=" + Date.now() + "'><\/script>");
+</script>
+<script type="text/javascript">
+    function get_track_id() {
+        return document.getElementById('track_id').value;
+    }
+    spotifyInit('{{ web_playback_sdk_access_token }}')
+        .then(([player, device_id]) => {
+            let play_button = document.getElementById('play');
+            play_button.addEventListener('click', () => {
+                playTrack(get_track_id(), device_id, '{{ web_api_access_token }}');
+                player.togglePlay().then(() => {
+                    console.log('toggled playback!');
+                });
+            });
+            play_button.textContent = 'Play';
+            play_button.disabled = false;
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+</script>
+
+{% endblock %}

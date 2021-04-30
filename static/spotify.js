@@ -35,6 +35,10 @@ async function spotifyInit(access_token) {
 }
 
 function playTrack(track_id, device_id, access_token) {
+    console.log('Playing a track!');
+    console.log('track id', track_id);
+    console.log('device id', device_id);
+    console.log('access_token', access_token);
     fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device_id}`, {
         method: 'PUT',
         body: JSON.stringify({ context_uri: track_id }),
