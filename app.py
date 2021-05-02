@@ -53,13 +53,28 @@ sp = spotipy.Spotify(auth_manager=SpotifyPKCE(
 @app.route('/')
 def index():
     """Look for valid site access token"""
-    if 'site_access_token' not in session:
+    if not site_access_token_is_valid():
         return redirect(url_for('coming_soon'))
+    if not spotify_access_token_is_valid():
+        return sign_in_with_spotify()
+    access_token = spotify_cache_handler.get_cached_token()['access_token']
+    return render_template('player.html', access_token=access_token)
+
+
+def site_access_token_is_valid() -> bool:
+    if 'site_access_token' not in session:
+        return False
     valid_site_access_tokens = os.getenv('SITE_ACCESS', '').split()
     if session['site_access_token'] not in valid_site_access_tokens:
         session.pop('site_access_token', None)
-        return redirect(url_for('coming_soon'))
-    return sign_in_with_spotify()
+        return False
+    return True
+
+
+def spotify_access_token_is_valid() -> bool:
+    if sp.auth_manager.validate_token(spotify_cache_handler.get_cached_token()) is None:
+        return False
+    return True
 
 
 @app.route('/early-access', methods=['GET', 'POST'])
@@ -89,18 +104,7 @@ def spotify_auth_callback():
         raise RuntimeError(error)
     code = request.args.get('code', None)
     sp.auth_manager.get_access_token(code=code, check_cache=True)
-    return redirect(url_for('player'))
-
-
-@app.route('/player')
-def player():
-    """Render the player"""
-    if 'site_access_token' not in session:
-        return redirect(url_for('index'))
-    if sp.auth_manager.validate_token(spotify_cache_handler.get_cached_token()) is None:
-        return sign_in_with_spotify()
-    access_token = spotify_cache_handler.get_cached_token()['access_token']
-    return render_template('player.html', access_token=access_token)
+    return redirect(url_for('index'))
 
 
 @app.route('/reset')
