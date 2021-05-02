@@ -18,11 +18,11 @@
     function get_track_id() {
         return document.getElementById('track_id').value;
     }
-    spotifyInit('{{ web_playback_sdk_access_token }}')
+    spotifyInit('{{ access_token }}')
         .then(([player, device_id]) => {
             let play_button = document.getElementById('play');
             play_button.addEventListener('click', () => {
-                playTrack(get_track_id(), device_id, '{{ web_api_access_token }}');
+                playTrack(get_track_id(), device_id, '{{ access_token }}');
                 player.togglePlay().then(() => {
                     console.log('toggled playback!');
                 });
