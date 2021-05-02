@@ -46,15 +46,19 @@ def refresh_token_is_valid() -> bool:
 @app.route('/spotify-callback', methods=['GET', 'POST'])
 def spotify_auth_callback():
     """Handle Spotify authentication response"""
-    if request.method == 'POST':
-        session['web_playback_sdk_access_token'] = request.form['web_playback_sdk_access_token']
-        session['web_api_access_token'] = request.form['web_api_access_token']
-        return redirect(url_for('index'))
+    print(request.method)
+    print(request)
+    return f"""
+    <code>{request.args.get('code', None)}</code>
+    <code>{request.args.get('state', None)}</code>
+    <code>{request.args.get('error', None)}</code>
+    """
+
     # if response contains an error
     #   point to spotify_auth
     # save token
     # point to player
-    pass
+
 
 @app.route('/player')
 def player():
