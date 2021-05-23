@@ -4,10 +4,18 @@
 
 <p>
     <label for="track_id">Track ID:</label>
-    <input id="track_id" type="text" name="track_id" autocomplete="off" value="spotify:album:63iWSELt9V1kV6RSMxN7Ii"/>
+    <input id="track_id" type="text" name="track_id" autocomplete="off" value="spotify:album:63iWSELt9V1kV6RSMxN7Ii" />
 </p>
 
 <button id="play" disabled="true">Loading</button>
+
+<p>
+    {% for route, label in commands.items() %}
+    <button class="command command-{{ route }}" value="{{ route }}">
+        {{ label }}
+    </button>
+    {% endfor %}
+</p>
 
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
 <script>
@@ -33,6 +41,35 @@
         .catch((error) => {
             console.error(error);
         });
+</script>
+
+<script>
+    addEventListener('DOMContentLoaded', () => {
+        document.querySelector('.command-play').addEventListener('click', defaultHandler);
+        document.querySelector('.command-pause').addEventListener('click', defaultHandler);
+        document.querySelector('.command-skip').addEventListener('click', defaultHandler);
+        document.querySelector('.command-previous').addEventListener('click', defaultHandler);
+    }, true);
+
+    function defaultHandler(event) {
+        event.preventDefault(); // stop the button from submitting form (if any)
+        let clickedButton = event.target;
+        let command = clickedButton.value;
+        runCommand(command);
+    }
+
+    function runCommand(command) {
+        // Send the data to our server without reloading the page (AJAX)
+        // Create a new request object and set up a handler for the response
+        let request = new XMLHttpRequest();
+        request.onload = () => {
+            // We could do more interesting things with the response
+            // or, we could ignore it entirely
+            console.log(request.responseText);
+        };
+        request.open('GET', '/spotify/' + command, true);
+        request.send();
+    }
 </script>
 
 {% endblock %}

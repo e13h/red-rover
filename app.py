@@ -1,10 +1,14 @@
+import time
 import os
+from enum import Enum
+from typing import Callable
 
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, session, redirect, url_for
 import spotipy
 from spotipy.cache_handler import CacheHandler
 from spotipy.oauth2 import SpotifyPKCE, SpotifyStateError
+from spotipy.exceptions import SpotifyException
 
 load_dotenv()
 
@@ -27,6 +31,26 @@ class SessionCacheHandler(CacheHandler):
 
     def save_token_to_cache(self, token_info):
         session['spotify_token_info'] = token_info
+
+
+class Command(Enum):
+    PLAY = 'play'
+    PAUSE = 'pause'
+    SKIP = 'skip'
+    PREVIOUS = 'previous'
+
+    def label(self):
+        return str(self.value).title()
+
+    def route(self):
+        return str(self.value).lower()
+
+    def pair(self):
+        return self.label(), self.route()
+
+    @classmethod
+    def all(cls):
+        return cls.PLAY, cls.PAUSE, cls.SKIP, cls.PREVIOUS
 
 
 SCOPES = [
@@ -58,7 +82,8 @@ def index():
     if not spotify_access_token_is_valid():
         return sign_in_with_spotify()
     access_token = spotify_cache_handler.get_cached_token()['access_token']
-    return render_template('player.html', access_token=access_token)
+    commands = {command.route(): command.label() for command in Command.all()}
+    return render_template('player.html', access_token=access_token, commands=commands)
 
 
 def site_access_token_is_valid() -> bool:
@@ -114,3 +139,52 @@ def reset():
     session.pop('web_api_access_token', None)
     session.pop('spotify_token_info', None)
     return redirect(url_for('index'))
+
+
+@app.route(f'/spotify/{Command.PLAY.route()}')
+def spotify_command_play():
+    return spotify_player_action(sp.start_playback, lambda: True)
+
+
+@app.route(f'/spotify/{Command.PAUSE.route()}')
+def spotify_command_pause():
+    return spotify_player_action(sp.pause_playback, lambda: not sp.current_playback().get("is_playing", True))
+
+
+@app.route(f'/spotify/{Command.SKIP.route()}')
+def spotify_command_skip():
+    return spotify_player_action(sp.next_track, lambda: True)
+
+
+@app.route(f'/spotify/{Command.PREVIOUS.route()}')
+def spotify_command_previous():
+    return spotify_player_action(sp.previous_track, lambda: True)
+
+
+def spotify_player_action(action: Callable, verification: Callable, **action_kwargs: dict) -> dict:
+    TIMEOUT_SEC = 3.0
+    DELAY_BETWEEN_CALLS_SEC = 0.25
+    MAX_NUM_TRIES = int(TIMEOUT_SEC / DELAY_BETWEEN_CALLS_SEC)
+    try:
+        if len(action_kwargs) > 0:
+            action(**action_kwargs)
+        else:
+            action()
+        num_tries = 0
+        while num_tries < MAX_NUM_TRIES and not verification():
+            time.sleep(DELAY_BETWEEN_CALLS_SEC)
+            num_tries += 1
+        if num_tries >= MAX_NUM_TRIES and not verification():
+            return dict(success=False, reason="timed out")
+        return dict(success=True)
+    except SpotifyException as e:
+        if e.http_status == 404:
+            reason = "device not found"
+        elif e.http_status == 403:
+            reason = "user is non_premium"
+        elif e.http_status == 429:
+            retry_after = e.headers.get("Retry-After", None)
+            reason = f"rate limited, retry after {retry_after}"
+        else:
+            reason = "unknown"
+        return dict(success=False, reason=reason)
