@@ -83,7 +83,27 @@ def index():
         return sign_in_with_spotify()
     access_token = spotify_cache_handler.get_cached_token()['access_token']
     commands = {command.route(): command.label() for command in Command.all()}
-    return render_template('player.html', access_token=access_token, commands=commands)
+    top_tracks = get_top_tracks()
+    return render_template(
+        'player.html',
+        access_token=access_token,
+        commands=commands,
+        tracks=enumerate(top_tracks),
+    )
+
+
+def get_top_tracks(limit=5, time_range="short_term") -> dict:
+    result = sp.current_user_top_tracks(limit=limit, time_range=time_range)
+    top_tracks = [
+        dict(
+            name=track["name"],
+            image=track["album"]["images"][-1]["url"],
+            artist=track["artists"][0]["name"],
+            uri=track["uri"],
+        )
+        for track in result["items"]
+    ]
+    return top_tracks
 
 
 def site_access_token_is_valid() -> bool:

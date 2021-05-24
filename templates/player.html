@@ -7,6 +7,19 @@
     <input id="track_id" type="text" name="track_id" autocomplete="off" value="spotify:album:63iWSELt9V1kV6RSMxN7Ii" />
 </p>
 
+<p>
+    <ul>
+        {% for i, track in tracks %}
+        <li>
+            <img class="track-{{ i }}-image" src="{{ track['image'] }}" width="30px">
+            <button class="track track-{{ i }}" value="{{ track['uri'] }}">
+                {{ track["name"] }} - {{ track["artist"] }}
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+</p>
+
 <button id="play" disabled="true">Loading</button>
 
 <p>
