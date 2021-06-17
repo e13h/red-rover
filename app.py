@@ -50,7 +50,7 @@ class Command(Enum):
 
     @classmethod
     def all(cls):
-        return cls.PLAY, cls.PAUSE, cls.SKIP, cls.PREVIOUS
+        return cls.PREVIOUS, cls.SKIP
 
 
 SCOPES = [
@@ -161,9 +161,11 @@ def reset():
     return redirect(url_for('index'))
 
 
-@app.route(f'/spotify/{Command.PLAY.route()}')
-def spotify_command_play():
-    return spotify_player_action(sp.start_playback, lambda: True)
+@app.route(f'/spotify/{Command.PLAY.route()}/<track_uri>')
+def spotify_command_play(track_uri: str = None):
+    uris = [track_uri] if track_uri else None
+    device_id = request.args.get('device_id', None)
+    return spotify_player_action(sp.start_playback, lambda: True, uris=uris, device_id=device_id)
 
 
 @app.route(f'/spotify/{Command.PAUSE.route()}')

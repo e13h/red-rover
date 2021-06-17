@@ -2,25 +2,22 @@
 
 {% block content %}
 
+<!-- Top Tracks -->
 <p>
-    <label for="track_id">Track ID:</label>
-    <input id="track_id" type="text" name="track_id" autocomplete="off" value="spotify:album:63iWSELt9V1kV6RSMxN7Ii" />
+<ul>
+    {% for i, track in tracks %}
+    <li>
+        <img class="track-{{ i }}-image" src="{{ track['image'] }}" width="30px">
+        <button class="track track-{{ i }}" value="play/{{ track['uri'] }}">
+            {{ track["name"] }} - {{ track["artist"] }}
+        </button>
+    </li>
+    {% endfor %}
+</ul>
 </p>
 
-<p>
-    <ul>
-        {% for i, track in tracks %}
-        <li>
-            <img class="track-{{ i }}-image" src="{{ track['image'] }}" width="30px">
-            <button class="track track-{{ i }}" value="{{ track['uri'] }}">
-                {{ track["name"] }} - {{ track["artist"] }}
-            </button>
-        </li>
-        {% endfor %}
-    </ul>
-</p>
-
-<button id="play" disabled="true">Loading</button>
+<!-- Controls -->
+<button id="play-pause" disabled="true">Loading</button>
 
 <p>
     {% for route, label in commands.items() %}
@@ -30,59 +27,14 @@
     {% endfor %}
 </p>
 
+<!-- Scripts -->
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
+
+<!-- Prevent any sort of caching from happening when we fetch `spotify.js` -->
 <script>
+    window.spotify_access_token = '{{ access_token }}'
     const filename = "{{ url_for('static', filename='spotify.js') }}"
     document.write("<script type='text/javascript' src='" + filename + "?v=" + Date.now() + "'><\/script>");
-</script>
-<script type="text/javascript">
-    function get_track_id() {
-        return document.getElementById('track_id').value;
-    }
-    spotifyInit('{{ access_token }}')
-        .then(([player, device_id]) => {
-            let play_button = document.getElementById('play');
-            play_button.addEventListener('click', () => {
-                playTrack(get_track_id(), device_id, '{{ access_token }}');
-                player.togglePlay().then(() => {
-                    console.log('toggled playback!');
-                });
-            });
-            play_button.textContent = 'Play';
-            play_button.disabled = false;
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-</script>
-
-<script>
-    addEventListener('DOMContentLoaded', () => {
-        document.querySelector('.command-play').addEventListener('click', defaultHandler);
-        document.querySelector('.command-pause').addEventListener('click', defaultHandler);
-        document.querySelector('.command-skip').addEventListener('click', defaultHandler);
-        document.querySelector('.command-previous').addEventListener('click', defaultHandler);
-    }, true);
-
-    function defaultHandler(event) {
-        event.preventDefault(); // stop the button from submitting form (if any)
-        let clickedButton = event.target;
-        let command = clickedButton.value;
-        runCommand(command);
-    }
-
-    function runCommand(command) {
-        // Send the data to our server without reloading the page (AJAX)
-        // Create a new request object and set up a handler for the response
-        let request = new XMLHttpRequest();
-        request.onload = () => {
-            // We could do more interesting things with the response
-            // or, we could ignore it entirely
-            console.log(request.responseText);
-        };
-        request.open('GET', '/spotify/' + command, true);
-        request.send();
-    }
 </script>
 
 {% endblock %}
