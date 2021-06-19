@@ -31,15 +31,7 @@ window.onSpotifyWebPlaybackSDKReady = () => {
     window.spotify_player.addListener('ready', ({ device_id }) => {
         console.log('Ready with Device ID', device_id);
         window.spotify_device_id = device_id;
-
-        let play_button = document.getElementById('play-pause');
-        play_button.addEventListener('click', () => {
-            window.spotify_player.togglePlay().then(() => {
-                console.log('toggled playback!');
-            });
-        });
-        play_button.textContent = 'Play/Pause';
-        play_button.disabled = false;
+        activatePlayPauseButton();
     });
 
     // Not Ready
@@ -82,4 +74,15 @@ function runCommand(command) {
         '/spotify/' + command + '?device_id=' + window.spotify_device_id,
         true);
     request.send();
+}
+
+function activatePlayPauseButton() {
+    let play_button = document.getElementById('play-pause');
+    play_button.addEventListener('click', () => {
+        window.spotify_player.togglePlay().then(() => {
+            console.log('toggled playback!');
+        });
+    });
+    play_button.textContent = 'Play/Pause';
+    play_button.disabled = false;
 }
