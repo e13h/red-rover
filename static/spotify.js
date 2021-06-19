@@ -1,10 +1,11 @@
 window.spotify_device_id = null;
 window.spotify_player = null;
+spotify_access_token = document.currentScript.getAttribute('access_token');
 
 window.onSpotifyWebPlaybackSDKReady = () => {
     window.spotify_player = new Spotify.Player({
         name: 'Red Rover',
-        getOAuthToken: cb => { cb(window.spotify_access_token); }
+        getOAuthToken: cb => { cb(spotify_access_token); }
     });
 
     // Error handling

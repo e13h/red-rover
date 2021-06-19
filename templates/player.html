@@ -29,12 +29,6 @@
 
 <!-- Scripts -->
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
-
-<!-- Prevent any sort of caching from happening when we fetch `spotify.js` -->
-<script>
-    window.spotify_access_token = '{{ access_token }}'
-    const filename = "{{ url_for('static', filename='spotify.js') }}"
-    document.write("<script type='text/javascript' src='" + filename + "?v=" + Date.now() + "'><\/script>");
-</script>
+<script src="{{ url_for('static', filename='spotify.js') }}" access_token="{{ access_token }}"></script>
 
 {% endblock %}
