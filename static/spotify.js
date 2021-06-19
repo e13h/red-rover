@@ -76,7 +76,7 @@ function runCommand(command) {
     };
     request.open(
         'GET',
-        '/spotify/' + command + '?device_id=' + window.spotify_device_id,
+        `/spotify/${command}?device_id=${window.spotify_device_id}`,
         true);
     request.send();
 }
