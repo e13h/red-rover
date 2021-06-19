@@ -8,7 +8,7 @@
     {% for i, track in tracks %}
     <li>
         <img class="track-{{ i }}-image" src="{{ track['image'] }}" width="30px">
-        <button class="track track-{{ i }}" value="play/{{ track['uri'] }}">
+        <button class="track track-{{ i }}" value="{{ track['uri'] }}">
             {{ track["name"] }} - {{ track["artist"] }}
         </button>
     </li>

@@ -49,7 +49,12 @@ addEventListener('DOMContentLoaded', () => {
         command.addEventListener('click', defaultHandler);
     }
     for (const track of document.querySelectorAll('.track')) {
-        track.addEventListener('click', defaultHandler);
+        track.addEventListener('click', (event) => {
+            event.preventDefault(); // stop the button from submitting form (if any)
+            let clickedButton = event.target;
+            let track_id = clickedButton.value;
+            playTrack(track_id);
+        });
     }
 }, true);
 
@@ -72,6 +77,25 @@ function runCommand(command) {
     request.open(
         'GET',
         '/spotify/' + command + '?device_id=' + window.spotify_device_id,
+        true);
+    request.send();
+}
+
+function playTrack(track_id) {
+    // Send the data to our server without reloading the page (AJAX)
+    // Create a new request object and set up a handler for the response
+    let request = new XMLHttpRequest();
+    request.onload = () => {
+        // We could do more interesting things with the response
+        // or, we could ignore it entirely
+        console.log(request.responseText);
+
+        // Force the player to start playing (required for Safari)
+        window.spotify_player.resume();
+    };
+    request.open(
+        'GET',
+        `/spotify/play/${track_id}?device_id=${window.spotify_device_id}`,
         true);
     request.send();
 }
