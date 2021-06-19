@@ -18,8 +18,18 @@
             width: 25%;
         }
     </style>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="viewport" content="initial-scale=1.0" />
+    <meta name="viewport" media="(max-width: 700px)"
+        content="maximum-scale=1.0, user-scalable=no, width=device-width" />
+
+    <link rel="apple-touch-startup-image" href="{{ url_for('static', filename='red-rover-logo.png') }}" />
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='red-rover-logo.png') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
     <title>Red Rover</title>
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 
 <body>
