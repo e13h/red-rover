@@ -24,7 +24,14 @@ window.onSpotifyWebPlaybackSDKReady = () => {
 
     // Playback status updates
     window.spotify_player.addListener('player_state_changed', state => {
-        console.log(state);
+        img = document.querySelector('.now-playing-album-art');
+        img.src = state.track_window.current_track.album.images[0].url;
+
+        track_title = document.querySelector('.now-playing-track-title');
+        track_title.innerText = state.track_window.current_track.name;
+
+        track_artist = document.querySelector('.now-playing-track-artist');
+        track_artist.innerText = state.track_window.current_track.artists[0].name;
     });
 
     // Ready

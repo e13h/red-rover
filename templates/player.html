@@ -7,7 +7,7 @@
 <ul>
     {% for i, track in tracks %}
     <li>
-        <img class="track-{{ i }}-image" src="{{ track['image'] }}" width="30px">
+        <img class="track-{{ i }}-image" src="{{ track['image'] }}" width="30px" />
         <button class="track track-{{ i }}" value="{{ track['uri'] }}">
             {{ track["name"] }} - {{ track["artist"] }}
         </button>
@@ -16,16 +16,30 @@
 </ul>
 </p>
 
-<!-- Controls -->
-<button id="play-pause" disabled="true">Loading</button>
 
-<p>
-    {% for route, label in commands.items() %}
-    <button class="command command-{{ route }}" value="{{ route }}">
-        {{ label }}
-    </button>
-    {% endfor %}
-</p>
+<!-- Now Playing -->
+<div class="now-playing">
+    <h2>Now Playing</h2>
+    <img class="now-playing-album-art" src="{{ url_for('static', filename='placeholder_album_artwork.png') }}" width="300px" />
+    <b>
+        <p class="now-playing-track-title">Track</p>
+    </b>
+    <p class="now-playing-track-artist">Artist</p>
+</div>
+
+
+<!-- Controls -->
+<div class="now-playing now-playing-controls">
+    <button id="play-pause" disabled="true">Loading</button>
+    <div style="margin-top: 1em">
+        {% for route, label in commands.items() %}
+        <button class="command command-{{ route }}" value="{{ route }}">
+            {{ label }}
+        </button>
+        {% endfor %}
+    </div>
+</div>
+
 
 <!-- Scripts -->
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
