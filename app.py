@@ -81,6 +81,7 @@ def index():
         return redirect(url_for('coming_soon'))
     if not spotify_access_token_is_valid():
         return sign_in_with_spotify()
+    session.permanent = True
     access_token = spotify_cache_handler.get_cached_token()['access_token']
     commands = {command.route(): command.label() for command in Command.all()}
     top_tracks = get_top_tracks()
