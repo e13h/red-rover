@@ -74,6 +74,11 @@ sp = spotipy.Spotify(auth_manager=SpotifyPKCE(
     scope=SCOPES, cache_handler=spotify_cache_handler))
 
 
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+
+
 @app.route('/')
 def index():
     """Look for valid site access token"""
@@ -81,7 +86,6 @@ def index():
         return redirect(url_for('coming_soon'))
     if not spotify_access_token_is_valid():
         return sign_in_with_spotify()
-    session.permanent = True
     access_token = spotify_cache_handler.get_cached_token()['access_token']
     commands = {command.route(): command.label() for command in Command.all()}
     top_tracks = get_top_tracks()
