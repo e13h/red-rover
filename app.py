@@ -94,6 +94,7 @@ def index():
         access_token=access_token,
         commands=commands,
         tracks=enumerate(top_tracks),
+        moods=list(get_moods().keys()),
     )
 
 
@@ -215,3 +216,28 @@ def spotify_player_action(action: Callable, verification: Callable, **action_kwa
         else:
             reason = "unknown"
         return dict(success=False, reason=reason)
+
+
+@app.route('/moods/get/all')
+def get_moods():
+    if "moods" not in session:
+        session["moods"] = {"Default": [], "Other": []}
+    return session["moods"]
+
+
+@app.route('/moods/create/<mood_name>', methods=["PUT"])
+def create_mood(mood_name: str) -> bool:
+    if mood_name in session["moods"]:
+        return False
+    session["moods"][mood_name] = []
+    return True
+
+
+@app.route('/moods/rename/<old_name>/<new_name>')
+def rename_mood(old_name: str, new_name: str) -> bool:
+    if old_name not in session["moods"] or new_name in session["moods"]:
+        return False
+    session["moods"][new_name] = session["moods"][old_name]
+    session["moods"].pop(old_name)
+    return True
+

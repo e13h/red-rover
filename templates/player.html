@@ -2,6 +2,34 @@
 
 {% block content %}
 
+<!-- Moods -->
+<div class="moods">
+    <div class="select-mood">
+        <label for="moods">Select mood:</label>
+        <select class="select-mood" name="moods" id="moods">
+            <option value="{{ moods[0] }}" selected>{{ moods[0] }}</option>
+            {% for mood in moods[1:] %}
+            <option value="{{ mood }}">{{ mood }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    </br>
+    <form class="moods form-new-mood">
+        <div class="form-new-mood">
+            <label for="new-mood-name">New mood name:</label>
+            <input type="text" name="new-mood-name" id="new-mood-name" required>
+        </div>
+        <div class="form-new-mood">
+            <button class="form-new-mood-submit" value="create">
+                Create new mood
+            </button>
+            <button class="form-new-mood-submit" value="rename">
+                Rename current mood
+            </button>
+        </div>
+    </form>
+</div>
+
 <!-- Top Tracks -->
 <p>
 <ul>
@@ -20,7 +48,8 @@
 <!-- Now Playing -->
 <div class="now-playing">
     <h2>Now Playing</h2>
-    <img class="now-playing-album-art" src="{{ url_for('static', filename='placeholder_album_artwork.png') }}" width="300px" />
+    <img class="now-playing-album-art" src="{{ url_for('static', filename='placeholder_album_artwork.png') }}"
+        width="300px" />
     <b>
         <p class="now-playing-track-title">Track</p>
     </b>
@@ -43,6 +72,11 @@
 
 <!-- Scripts -->
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
-<script src="{{ url_for('static', filename='spotify.js') }}" access_token="{{ access_token }}"></script>
+
+<!-- Prevent any sort of caching from happening when we fetch `spotify.js` -->
+<script>
+    const filename = "{{ url_for('static', filename='spotify.js') }}" + "?v=" + Date.now();
+    document.write(`<script type='text/javascript' src='${filename}' access_token='{{ access_token }}'><\/script>`);
+</script>
 
 {% endblock %}
